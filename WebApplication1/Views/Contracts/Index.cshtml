@@ -1,0 +1,86 @@
+﻿@model List<WebApplication1.Models.ContractVM>
+
+<h3 class="text-center">Контракты</h3>
+<table class="table">
+    <thead>
+        <tr>
+            <th scope="col">Номер</th>
+            <th scope="col">Дата</th>
+            <th scope="col">Замечание</th>
+            <th scope="col">Ссылка на род. док-т</th>
+            <th scope="col">Контрагент</th>
+            <th scope="col">Статус</th>
+            <th scope="col"></th>
+            <th scope="col"></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr id="@item.Id">
+                <td><input type="text" class="form-control number" value="@item.Number"></td>
+                <td><input type="text" class="form-control date" value="@item.Date"></td>
+                <td><input type="text" class="form-control note" value="@item.Note"></td>
+                <td><input type="text" class="form-control parent-document-link" value="@item.ParentDocumentLink"></td>
+                <td>
+                    <select class="form-control contractors">
+                        @foreach (var contractor in item.Contractors)
+                        {
+                            <option id="@contractor.Id">@contractor.FirstName @contractor.LastName</option>
+                        }
+                    </select>
+                </td>
+                <td>
+                    <select class="form-control statuses">
+                        @foreach (var status in item.Statuses)
+                        {
+                            <option class="@status.Id">@status.Status</option>
+                        }
+                    </select>
+                </td>
+                <td>
+                    <button type="submit" class="btn btn-primary btn-xs update">&nbsp ред &nbsp</button>
+                </td>
+                <td>
+                    <form action="/Contracts/Delete">
+                        <button type="submit" class="btn btn-danger btn-xs" name="id" value="@item.Id">X</button>
+                    </form>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+<form action="/Contracts/Add">
+    <button type="submit" class="btn btn-success add">Добавить</button>
+</form>
+
+
+<script>
+    let contracts = {
+        thisContract: null,
+        init: function () {
+            thisContract = this;
+            $('.update').click(function () {
+                let id = $(this).parent().parent().attr('id');
+                let data = {
+                    Id: id,
+                    SelectedContractorId: $('#' + id + ' .contractors').find('option:selected').attr('id'),
+                    Number: $('#' + id + ' .number').val(),
+                    Date: $('#' + id + ' .date').val(),
+                    Note: $('#' + id + ' .note').val(),
+                    ParentDocumentLink: $('#' + id + ' .parent-document-link').val(),
+                    ContractorFullName: $('#' + id + ' .contractor-fullname').val(),
+                    StatusId: $('#' + id + ' .statuses').find('option:selected').attr('class')
+                };
+                sendAjax('/Contracts/Update', data, function (data) {
+                    window.location.href = '/Contracts/Index';
+                }, null);
+            });
+        }
+    }
+
+    $(function () {
+        contracts.init();
+    });
+
+</script>

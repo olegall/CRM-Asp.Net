@@ -1,0 +1,85 @@
+﻿@model List<WebApplication1.Models.EmailVM>
+
+
+<h3 class="text-center">Почта</h3>
+<table class="table">
+    <thead>
+        <tr>
+            <th scope="col">От кого</th>
+            <th scope="col">Куда</th>
+            <th scope="col">Дата</th>
+            <th scope="col">Обратно дата получения</th>
+            <th scope="col">Описание</th>
+            <th scope="col">Система отправки</th>
+            <th scope="col">Трек номер</th>
+            <th scope="col">Обратно трек номер</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+        <tr id="@item.Id">
+            <td><input type="text" class="form-control from" value="@item.From"></td>
+            <td><input type="text" class="form-control to" value="@item.To"></td>
+            <td><input type="text" class="form-control date" value="@item.Date"></td>
+            <td><input type="text" class="form-control dateback" value="@item.DateBack"></td>
+            <td><input type="text" class="form-control description" value="@item.Description"></td>
+            <td><input type="text" class="form-control delivery-system" value="@item.DeliverySystem"></td>
+            <td><input type="text" class="form-control tracking-number" value="@item.TrackingNumber"></td>
+            <td><input type="text" class="form-control tracking-number-back" value="@item.TrackingNumberBack"></td>
+            <td>
+                <select class="form-control statuses">
+                @foreach (var status in item.Statuses)
+                {
+                    <option class="@status.Id">@status.Status</option>
+                }
+                </select>
+            </td>
+            <td>
+                <button type="submit" class="btn btn-primary btn-xs update">&nbsp ред &nbsp</button>
+            </td>
+            <td>
+                <form action="/Emails/Delete">
+                    <button type="submit" class="btn btn-danger btn-xs" name="id" value="@item.Id">X</button>
+                </form>
+            </td>
+        </tr>
+        }
+    </tbody>
+</table>
+<form action="/Emails/Add">
+    <button type="submit" class="btn btn-success add">Добавить</button>
+</form>
+
+
+<script>
+    let emails = {
+        thisEmail: null,
+        init: function () {
+            thisEmail = this;
+            $('.update').click(function () {
+                let id = $(this).parent().parent().attr('id');
+                let data = {
+                    Id: id,
+                    From: $('#' + id + ' .from').val(),
+                    To: $('#' + id + ' .to').val(),
+                    Date: $('#' + id + ' .date').val(),
+                    DateBack: $('#' + id + ' .dateback').val(),
+                    Description: $('#' + id + ' .description').val(),
+                    DeliverySystem: $('#' + id + ' .delivery-system').val(),
+                    TrackingNumber: $('#' + id + ' .tracking-number').val(),
+                    TrackingNumberBack: $('#' + id + ' .tracking-number-back').val(),
+                    StatusId: $('#' + id + ' .statuses').find('option:selected').attr('class')
+                };
+                sendAjax('/Emails/Update', data, function (data) {
+                    window.location.href = '/Emails/Index';
+                }, null);
+            });
+        }
+    }
+
+    $(function () {
+        emails.init();
+    });
+
+</script>
